@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JavaScriptSettings">
+    <option name="languageLevel" value="ES6" />
+  </component>
+<<<<<<< HEAD
+<<<<<<< HEAD
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.6 (test)" project-jdk-type="Python SDK" />
+=======
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.5 (flask-mongo)" project-jdk-type="Python SDK" />
+>>>>>>> refs/remotes/origin/master
+=======
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.5 (flask-mongo)" project-jdk-type="Python SDK" />
+>>>>>>> 463e4f3bd8148ee72e353bc67db6652b98e4cacd
+</project>
