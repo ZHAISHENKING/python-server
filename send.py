@@ -165,12 +165,15 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         """
         enc = "gb18030";
         unquoted_path = urllib.parse.unquote(self.path)
-        print("send_head: self.path=%s unquoted_path=%s" % (self.path, unquoted_path))
+        print("unq=%s" % unquoted_path)
+        print('----------------')
+        # print("send_head: self.path=%s unquoted_path=%s" % (self.path, unquoted_path))
         PLAYVIDEO_REQUEST = re.compile(r'/playvideo\?path=(.+)$')
         m = PLAYVIDEO_REQUEST.match(unquoted_path)
         if m:  # TODO: 重构这里的代码
             video_path = m.group(1)
-            print("send_head: video_path=%s" % video_path)
+            print("video_path=%s" % video_path)
+            # print("send_head: video_path=%s" % video_path)
             self.send_response(200)
             self.send_header("Content-Type", "text/html")
             self.end_headers()
@@ -209,7 +212,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             # TODO: 检查原始请求是否指定了Range头部
             if self.headers.get("Range"):
                 range_value = self.headers["Range"]
-                print("send_head: range_value=[%s]" % range_value)
+                # print("send_head: range_value=[%s]" % range_value)
                 # 直接使用正则表达式匹配: Range: bytes=100-
                 HTTP_RANGE_HEADER = re.compile(r'bytes=([0-9]+)\-(([0-9]+)?)')
                 m = re.match(HTTP_RANGE_HEADER, range_value)
@@ -225,43 +228,49 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     self.send_header("Content-Type", ctype)
                     if end == -1:
                         self.send_header("Content-Length", str(filesize - start))
+                        a = str(filesize - start)
                     else:
                         self.send_header("Content-Length", str(end - start + 1))
+                        a = str(end - start + 1)
+                    print(a)
                     self.send_header("Accept-Ranges", "bytes")
                     if end < 0:
                         content_range_header_value = "bytes %d-%d/%d" % (start, filesize - 1, filesize)
                     else:
                         content_range_header_value = "bytes %d-%d/%d" % (start, end, filesize)
                     self.send_header("Content-Range", content_range_header_value)
-                    print("send_head: ok, serve 206 for Range request %s-%s，Content-Range=%s" % (
-                    start_str, end_str, content_range_header_value))
+                    # print("send_head: ok, serve 206 for Range request %s-%s，Content-Range=%s" % (
+                    # start_str, end_str, content_range_header_value))
                     self.send_header("Connection", "close")
                     self.end_headers()
                     return (f, [start, end])
                 else:
-                    print("send_head: error! INVALID Range request header!!")
+                    # print("send_head: error! INVALID Range request header!!")
+
                     self.send_error(400, "Bad Request")
                     self.wfile.flush()
                     self.end_headers()
                     return (None, None)
+            else:
+                print('---------')
         except IOError:
             self.send_error(404, "File not found")
             return (None, None)
         self.send_response(200)
-        self.send_header("Content-Type", ctype)
-        file_stat = os.fstat(f.fileno())
-        self.send_header("Content-Length", str(file_stat[6]))
-        # self.send_header("Last-Modified", self.date_time_string(file_stat.st_mtime))
-        self.send_header("Last-Modified", self.date_time_string(time.time()))
-        # self.send_header("Expires", self.date_time_string(time.time()+5))
-        # self.send_header("Cache-control", "no-cache, no-store, must-revalidate, max-age=0, proxy-revalidate, no-transform")
-        # self.send_header("Pragma", "no-cache")
-        self.send_header("Connection", "close")
-        self.end_headers()
+        # self.send_header("Content-Type", ctype)
+        # file_stat = os.fstat(f.fileno())
+        # self.send_header("Content-Length", str(file_stat[6]))
+        # # self.send_header("Last-Modified", self.date_time_string(file_stat.st_mtime))
+        # self.send_header("Last-Modified", self.date_time_string(time.time()))
+        # # self.send_header("Expires", self.date_time_string(time.time()+5))
+        # # self.send_header("Cache-control", "no-cache, no-store, must-revalidate, max-age=0, proxy-revalidate, no-transform")
+        # # self.send_header("Pragma", "no-cache")
+        # self.send_header("Connection", "close")
+        # self.end_headers()
         return (f, None)
 
 
 s = MyThreadingHTTPServer(("", PORT), MyHTTPRequestHandler)
 sa = s.socket.getsockname()
-print("Serving MyThreadingHTTPServer on", sa[0], "port", sa[1], "...")
+# print("Serving MyThreadingHTTPServer on", sa[0], "port", sa[1], "...")
 s.serve_forever()
