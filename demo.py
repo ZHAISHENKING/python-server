@@ -1,12 +1,8 @@
 from flask import Flask, request, Response, make_response
 from werkzeug.utils import secure_filename
 import os, re
-import http.server
-import cgi
-import urllib.parse
-import time
-
-
+from flask_restful import Api
+from flask import Response
 
 app = Flask(__name__)
 
@@ -35,22 +31,21 @@ def upload():
         return filename
 
 
-@app.route('/video/<name>', methods=["GET"])
+@app.route('/video/<name>/', methods=["GET"])
 def file(name):
-
-    p = "/data/static/uploads/"+name
+    p = os.getcwd()+'/uploads/' + name
     f = open(p, 'rb')
+    # 获取文件大小
     f.seek(0, os.SEEK_END)
     filesize = f.tell()
     f.seek(0, os.SEEK_SET)
     resp = Response(f, mimetype="video/mp4")
-    # a = make_response('<video src="%s" controls></video>' % name.encode("gb18030"))
     if request.headers.get("Range"):
+        # 通过Range大小返回不同Content-Range
         range_value = request.headers["Range"]
         HTTP_RANGE_HEADER = re.compile(r'bytes=([0-9]+)\-(([0-9]+)?)')
         m = re.match(HTTP_RANGE_HEADER, range_value)
         if m:
-            print(m)
             start_str = m.group(1)
             start = int(start_str)
             end_str = m.group(2)
